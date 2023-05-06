@@ -1,0 +1,4 @@
+name = "micrograd"
+uuid = "b196b0ec-54a6-41dc-8a1a-fd632d20b8bd"
+authors = ["Pablo Miralles <pablomiralles99@gmail.com>"]
+version = "0.1.0"
