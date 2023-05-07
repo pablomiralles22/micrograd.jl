@@ -1,7 +1,7 @@
 module micrograd
 
-include("tensor.jl")
-include("unary_tensor_ops.jl")
-include("binary_tensor_ops.jl")
+include("micrograd/tensor.jl")
+include("micrograd/unary_tensor_ops.jl")
+include("micrograd/binary_tensor_ops.jl")
 
 end # module micrograd

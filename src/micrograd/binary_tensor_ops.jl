@@ -31,14 +31,14 @@ function op_apply(::Type{MultOp{T}}, X::Array{T, N}, Y::Array{T, M}) where {T<:R
     return Broadcast.broadcast(*, X, Y);
 end
 
-function backward(tensor::BinaryOpTensor{T, N, M, K, MultOp{T}}) where {T<:Real, N, M, K}
+function backward!(tensor::BinaryOpTensor{T, N, M, K, MultOp{T}}) where {T<:Real, N, M, K}
     dx = similar(tensor.child1.val);
     sum!(dx, Broadcast.broadcast(*, tensor.child2.val, tensor.grad));
-    update_gradient(tensor.child1, dx);
+    update_gradient!(tensor.child1, dx);
 
     dy = similar(tensor.child2.val);
     sum!(dy, Broadcast.broadcast(*, tensor.child1.val, tensor.grad));
-    update_gradient(tensor.child2, dy);
+    update_gradient!(tensor.child2, dy);
 end
 
 *(X::Tensor{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = BinaryOpTensor{T, N, M, max(N, M), MultOp{Float64}}(X, Y)
@@ -55,14 +55,14 @@ function op_apply(::Type{AddOp{T}}, X::Array{T, N}, Y::Array{T, M}) where {T<:Re
     return Broadcast.broadcast(+, X, Y);
 end
 
-function backward(tensor::BinaryOpTensor{T, N, M, K, AddOp{T}}) where {T<:Real, N, M, K}
+function backward!(tensor::BinaryOpTensor{T, N, M, K, AddOp{T}}) where {T<:Real, N, M, K}
     dx = similar(tensor.child1.val);
     sum!(dx, tensor.grad);
-    update_gradient(tensor.child1, dx);
+    update_gradient!(tensor.child1, dx);
 
     dy = similar(tensor.child2.val);
     sum!(dy, tensor.grad);
-    update_gradient(tensor.child2, dy);
+    update_gradient!(tensor.child2, dy);
 end
 
 +(X::Tensor{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = BinaryOpTensor{T, N, M, max(N, M), AddOp{Float64}}(X, Y)
@@ -70,4 +70,14 @@ end
 +(X::Array{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = ConstantTensor(X) + Y
 +(X::Tensor{T, N}, y::T) where{T<:Real, N} = X + [y]
 +(x::T, Y::Tensor{T, M}) where{T<:Real, M} = [x] + Y
+
+############ SUBSTRACTION
+
+import Base: -
+
+-(X::Tensor{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = BinaryOpTensor{T, N, M, max(N, M), AddOp{Float64}}(X, -Y)
+-(X::Tensor{T, N}, Y::Array{T, M}) where{T<:Real, N, M} = X - ConstantTensor(Y)
+-(X::Array{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = ConstantTensor(X) - Y
+-(X::Tensor{T, N}, y::T) where{T<:Real, N} = X - [y]
+-(x::T, Y::Tensor{T, M}) where{T<:Real, M} = [x] - Y
 

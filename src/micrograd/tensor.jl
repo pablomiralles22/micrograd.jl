@@ -1,5 +1,5 @@
 export Tensor, ConstantTensor, DifferentiableTensor, DifferentiableTensor,
-    update_gradient, update_gradient, backward
+    update_gradient!, update_gradient!, backward!
 
 #############
 ############# TENSOR CLASSES
@@ -24,23 +24,23 @@ DifferentiableTensor(val::Array{T, N}) where {T, N} = DifferentiableTensor(val::
 ############# UPDATE GRADIENT & RESET GRADIENT
 #############
 
-function update_gradient(::ConstantTensor{T, N}, ::Array{T, N}) where {T, N}
+function update_gradient!(::ConstantTensor{T, N}, ::Array{T, N}) where {T, N}
 end
 
-function update_gradient(tensor::BaseDifferentiableTensor{T, N}, delta::Array{T, N}) where {T, N}
+function update_gradient!(tensor::BaseDifferentiableTensor{T, N}, delta::Array{T, N}) where {T, N}
     tensor.grad += delta
 end
 
-function reset_gradient(tensor::ConstantTensor{T, N}) where {T, N}
+function reset_gradient!(tensor::ConstantTensor{T, N}) where {T, N}
 end
 
-function reset_gradient(tensor::BaseDifferentiableTensor{T, N}) where {T, N}
+function reset_gradient!(tensor::BaseDifferentiableTensor{T, N}) where {T, N}
     fill!(tensor.grad, 0);
 end
 
 #############
-############# BACKWARD PASS
+############# backward! PASS
 #############
 
-function backward(tensor::DifferentiableTensor)
+function backward!(tensor::DifferentiableTensor)
 end

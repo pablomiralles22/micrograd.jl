@@ -2,9 +2,9 @@ using micrograd
 
 a = BaseDifferentiableTensor(randn(Float32, 3, 3) .* 10)
 
-b = tensor_tanh(a)
+b = tanh(a)
 b.grad[1,1] = 1
-backward(b)
+backward!(b)
 
 println(a.val)
 println(a.grad)
