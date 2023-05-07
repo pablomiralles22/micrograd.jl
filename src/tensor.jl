@@ -1,4 +1,4 @@
-export Tensor, ConstantTensor, DifferentiableTensor, BaseDifferentiableTensor,
+export Tensor, ConstantTensor, DifferentiableTensor, DifferentiableTensor,
     update_gradient, update_gradient, backward
 
 #############
@@ -11,38 +11,30 @@ struct ConstantTensor{T<:Real, N} <: Tensor{T, N}
     val::Array{T, N} 
 end
 
-abstract type DifferentiableTensor{T<:Real, N} <: Tensor{T, N} end
+abstract type BaseDifferentiableTensor{T<:Real, N} <: Tensor{T, N} end
 
-mutable struct BaseDifferentiableTensor{T<:Real, N} <: DifferentiableTensor{T, N}
+mutable struct DifferentiableTensor{T<:Real, N} <: BaseDifferentiableTensor{T, N}
     val:: Array{T, N}
     grad::Array{T, N}
 end
 
-BaseDifferentiableTensor(val::Array{T, N}) where {T, N} = BaseDifferentiableTensor(val::Array{T, N}, zeros(T, size(val)))
-
-# UNARY OPS
-
-mutable struct ExpDifferentiableTensor{T<:Real, N} <: DifferentiableTensor{T, N}
-    val:: Array{T, N}
-    grad::Array{T, N}
-    child::Tensor{T, N}
-end
+DifferentiableTensor(val::Array{T, N}) where {T, N} = DifferentiableTensor(val::Array{T, N}, zeros(T, size(val)))
 
 #############
 ############# UPDATE GRADIENT & RESET GRADIENT
 #############
 
-function update_gradient(tensor::ConstantTensor{T, N}, delta::Array{T, N}) where {T, N}
+function update_gradient(::ConstantTensor{T, N}, ::Array{T, N}) where {T, N}
 end
 
-function update_gradient(tensor::DifferentiableTensor{T, N}, delta::Array{T, N}) where {T, N}
+function update_gradient(tensor::BaseDifferentiableTensor{T, N}, delta::Array{T, N}) where {T, N}
     tensor.grad += delta
 end
 
 function reset_gradient(tensor::ConstantTensor{T, N}) where {T, N}
 end
 
-function reset_gradient(tensor::DifferentiableTensor{T, N}) where {T, N}
+function reset_gradient(tensor::BaseDifferentiableTensor{T, N}) where {T, N}
     fill!(tensor.grad, 0);
 end
 
@@ -50,5 +42,5 @@ end
 ############# BACKWARD PASS
 #############
 
-function backward(tensor::BaseDifferentiableTensor)
+function backward(tensor::DifferentiableTensor)
 end

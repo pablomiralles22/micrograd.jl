@@ -1,8 +1,7 @@
 
-include("tensor.jl")
 include("unary_ops.jl")
 
-mutable struct UnaryOpTensor{T<:Real, N, OpType<:UnaryOp{T}} <: DifferentiableTensor{T, N}
+mutable struct UnaryOpTensor{T<:Real, N, OpType<:UnaryOp{T}} <: BaseDifferentiableTensor{T, N}
     val:: Array{T, N}
     grad::Array{T, N}
     child::Tensor{T, N}
