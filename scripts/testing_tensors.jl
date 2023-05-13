@@ -1,15 +1,12 @@
 using micrograd
 
 a = DifferentiableTensor(randn(Float32, 3, 3) .* 10)
-
 b = Float32(2.0) / a
-b.grad = ones(3,3)
-backward!(b)
-backward!(b.child2)
+c = exp(b)
 
-println(a.val)
-println(a.grad)
-println(- Float32(2.0) ./ (a.val .^ Float32(2)))
-println()
-println(b.val)
-println(b.grad)
+c.grad = ones(size(c.grad))
+backpropagate!(c)
+
+for tensor in build_topological_sort(c)
+    show(tensor)
+end

@@ -2,3 +2,6 @@ name = "micrograd"
 uuid = "b196b0ec-54a6-41dc-8a1a-fd632d20b8bd"
 authors = ["Pablo Miralles <pablomiralles99@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
