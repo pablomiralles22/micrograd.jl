@@ -8,6 +8,7 @@ abstract type BinaryOp{T<:Real} end
 abstract type MultOp{T<:Real} <: BinaryOp{T} end
 abstract type AddOp{T<:Real} <: BinaryOp{T} end
 abstract type PowOp{T<:Real} <: BinaryOp{T} end
+abstract type TensorContractionOp{T<:Real, Dim} <: BinaryOp{T} end
 
 
 ###################################################################
@@ -39,20 +40,20 @@ end
 import Base: *
 
 function forward(::Type{MultOp{T}}, X::Array{T, N}, Y::Array{T, M}) where {T<:Real, N, M}
-    return Broadcast.broadcast(*, X, Y);
+    @tturbo return Broadcast.broadcast(*, X, Y);
 end
 
 function backward!(tensor::BinaryOpTensor{T, N, M, K, MultOp{T}}) where {T<:Real, N, M, K}
     if !(tensor.child1 isa ConstantTensor)
         dx = similar(tensor.child1.val);
-        sum!(dx, Broadcast.broadcast(*, tensor.child2.val, tensor.grad));
-        update_gradient!(tensor.child1, dx);
+        @tturbo sum!(dx, Broadcast.broadcast(*, tensor.child2.val, tensor.grad));
+        @tturbo tensor.child1.grad += dx;
     end
 
     if !(tensor.child2 isa ConstantTensor)
         dy = similar(tensor.child2.val);
-        sum!(dy, Broadcast.broadcast(*, tensor.child1.val, tensor.grad));
-        update_gradient!(tensor.child2, dy);
+        @tturbo sum!(dy, Broadcast.broadcast(*, tensor.child1.val, tensor.grad));
+        @tturbo tensor.child2.grad += dy;
     end
 end
 
@@ -67,20 +68,20 @@ end
 import Base: +
 
 function forward(::Type{AddOp{T}}, X::Array{T, N}, Y::Array{T, M}) where {T<:Real, N, M}
-    return Broadcast.broadcast(+, X, Y);
+    @tturbo return Broadcast.broadcast(+, X, Y);
 end
 
 function backward!(tensor::BinaryOpTensor{T, N, M, K, AddOp{T}}) where {T<:Real, N, M, K}
     if !(tensor.child1 isa ConstantTensor)
         dx = similar(tensor.child1.val);
-        sum!(dx, tensor.grad);
-        update_gradient!(tensor.child1, dx);
+        @tturbo sum!(dx, tensor.grad);
+        @tturbo tensor.child1.grad += dx;
     end
 
     if !(tensor.child2 isa ConstantTensor)
         dy = similar(tensor.child2.val);
-        sum!(dy, tensor.grad);
-        update_gradient!(tensor.child2, dy);
+        @tturbo sum!(dy, tensor.grad);
+        @tturbo tensor.child2.grad += dy;
     end
 end
 
@@ -106,20 +107,20 @@ import Base: -
 import Base: ^
 
 function forward(::Type{PowOp{T}}, X::Array{T, N}, Y::Array{T, M}) where {T<:Real, N, M}
-    return Broadcast.broadcast(^, X, Y);
+    @tturbo return Broadcast.broadcast(^, X, Y);
 end
 
 function backward!(tensor::BinaryOpTensor{T, N, M, K, PowOp{T}}) where {T<:Real, N, M, K}
     if !(tensor.child1 isa ConstantTensor)
         dx = similar(tensor.child1.val);
-        sum!(dx, tensor.grad .* tensor.child2.val .* (tensor.child1.val .^ (tensor.child2.val .- 1.0)));
-        update_gradient!(tensor.child1, dx);
+        @tturbo sum!(dx, tensor.grad .* tensor.child2.val .* (tensor.child1.val .^ (tensor.child2.val .- 1.0)));
+        @tturbo tensor.child1.grad += dx;
     end
 
     if !(tensor.child2 isa ConstantTensor)
         dy = similar(tensor.child2.val);
-        sum!(dy, tensor.grad .* log.(tensor.child2.val) .* (tensor.child1.val .^ tensor.child2.val));
-        update_gradient!(tensor.child2, dy);
+        @tturbo sum!(dy, tensor.grad .* log.(tensor.child2.val) .* (tensor.child1.val .^ tensor.child2.val));
+        @tturbo tensor.child2.grad += dy;
     end
 end
 
@@ -139,6 +140,4 @@ import Base: /
 /(X::Array{T, N}, Y::Tensor{T, M}) where{T<:Real, N, M} = ConstantTensor(X) / Y
 /(X::Tensor{T, N}, y::T) where{T<:Real, N} = X / [y]
 /(x::T, Y::Tensor{T, M}) where{T<:Real, M} = [x] / Y
-
-
 

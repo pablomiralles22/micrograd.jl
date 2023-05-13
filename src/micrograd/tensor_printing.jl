@@ -45,3 +45,14 @@ function show(io::IO, tensor::BinaryOpTensor{T, N, M, K, OpType}) where {T<:Real
     println("\n-----------------------------")
 end
 
+function show(io::IO, tensor::ContractionTensor{T, N, M, K, D}) where {T<:Real, N, M, K, D}
+    println("-----------------------------")
+    println(io, "ContractionTensor with type ", T, ", dimension ", D, " and size ", size(tensor.val))
+    print(io, "\nValue: ")
+    show(io, "text/plain", tensor.val)
+    println()
+    print(io, "\nGradient: ")
+    show(io, "text/plain", tensor.grad)
+    println("\n-----------------------------")
+end
+

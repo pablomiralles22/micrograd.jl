@@ -1,6 +1,7 @@
 ###################################################################
 ######################### UNARY OPS IMPL ##########################
 ###################################################################
+using LoopVectorization
 
 abstract type UnaryOp{T<:Real} end
 
@@ -9,11 +10,11 @@ abstract type UnaryOp{T<:Real} end
 abstract type ExpOp{T<:Real} <: UnaryOp{T} end
 
 function op_apply(::Type{ExpOp{T}}, val::Array{T, N}) where {T, N}
-    return exp.(val);
+    @tturbo return exp.(val);
 end
 
 function dop_apply(::Type{ExpOp{T}}, val::Array{T, N}) where {T, N}
-    return exp.(val);
+    @tturbo return exp.(val);
 end
 
 
@@ -22,11 +23,11 @@ end
 abstract type ReluOp{T<:Real} <: UnaryOp{T} end
 
 function op_apply(::Type{ReluOp{T}}, val::Array{T, N}) where {T, N}
-    return max.(val, T(0.0));
+    @tturbo return max.(val, T(0.0));
 end
 
 function dop_apply(::Type{ReluOp{T}}, val::Array{T, N}) where {T, N}
-    return convert.(T, val .> 0.0);
+    @tturbo return convert.(T, val .> 0.0);
 end
 
 ###### TANH
@@ -34,11 +35,11 @@ end
 abstract type TanhOp{T<:Real} <: UnaryOp{T} end
 
 function op_apply(::Type{TanhOp{T}}, val::Array{T, N}) where {T, N}
-    return tanh.(val);
+    @tturbo return tanh.(val);
 end
 
 function dop_apply(::Type{TanhOp{T}}, val::Array{T, N}) where {T, N}
-    return 1 .- (tanh.(val) .^ 2);
+    @tturbo return 1 .- (tanh.(val) .^ 2);
 end
 
 ###### LOG
@@ -46,11 +47,11 @@ end
 abstract type LogOp{T<:Real} <: UnaryOp{T} end
 
 function op_apply(::Type{LogOp{T}}, val::Array{T, N}) where {T, N}
-    return log.(val);
+    @tturbo return log.(val);
 end
 
 function dop_apply(::Type{LogOp{T}}, val::Array{T, N}) where {T, N}
-    return 1.0 ./ val;
+    @tturbo return 1.0 ./ val;
 end
 
 
@@ -59,11 +60,11 @@ end
 abstract type UnaryMinusOp{T<:Real} <: UnaryOp{T} end
 
 function op_apply(::Type{UnaryMinusOp{T}}, val::Array{T, N}) where {T, N}
-    return -val;
+    @tturbo return -val;
 end
 
 function dop_apply(::Type{UnaryMinusOp{T}}, val::Array{T, N}) where {T, N}
-    return -ones(size(val))
+    @tturbo return -ones(size(val))
 end
 
 ###################################################################
