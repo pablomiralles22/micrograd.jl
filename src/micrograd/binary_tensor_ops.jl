@@ -34,17 +34,6 @@ function BinaryOpTensor{T, N, M, K, OpType}(child1::Tensor{T, N}, child2::Tensor
     return BinaryOpTensor{T, N, M, K, OpType}(val, grad, child1, child2);
 end
 
-function show(io::IO, tensor::BinaryOpTensor{T, N, M, K, OpType}) where {T<:Real, N, M, K, OpType<:BinaryOp{T}}
-    println("-----------------------------")
-    println(io, "BinaryOpTensor with type ", T, ", operation ", OpType, " and size ", size(tensor.val))
-    print(io, "\nValue: ")
-    show(io, "text/plain", tensor.val)
-    println()
-    print(io, "\nGradient: ")
-    show(io, "text/plain", tensor.grad)
-    println("\n-----------------------------")
-end
-
 ############ PRODUCT
 
 import Base: *

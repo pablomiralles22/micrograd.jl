@@ -76,17 +76,6 @@ mutable struct UnaryOpTensor{T<:Real, N, OpType<:UnaryOp{T}} <: BaseDifferentiab
     child::Tensor{T, N}
 end
 
-function show(io::IO, tensor::UnaryOpTensor{T, N, OpType}) where {T<:Real, N, OpType<:UnaryOp{T}}
-    println("-----------------------------")
-    println(io, "UnaryOpTensor with type ", T, ", operation ", OpType, " and size ", size(tensor.val))
-    print(io, "\nValue: ")
-    show(io, "text/plain", tensor.val)
-    println()
-    print(io, "\nGradient: ")
-    show(io, "text/plain", tensor.grad)
-    println("\n-----------------------------")
-end
-
 function backward!(tensor::UnaryOpTensor{T, N, OpType}) where {T, N, OpType}
     if !(tensor.child isa ConstantTensor)
         delta = tensor.grad .* dop_apply(OpType, tensor.child.val);
