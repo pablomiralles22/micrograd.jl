@@ -23,6 +23,7 @@ DifferentiableTensor(val::Array{T, N}) where {T, N} = DifferentiableTensor(val::
 #############
 ############# UPDATE GRADIENT & RESET GRADIENT
 #############
+# TODO remove
 
 function update_gradient!(::ConstantTensor{T, N}, ::Array{T, N}) where {T, N}
 end

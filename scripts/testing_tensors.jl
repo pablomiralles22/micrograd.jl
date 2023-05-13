@@ -1,13 +1,15 @@
 using micrograd
 
-a = BaseDifferentiableTensor(randn(Float32, 3, 3) .* 10)
+a = DifferentiableTensor(randn(Float32, 3, 3) .* 10)
 
-b = tanh(a)
-b.grad[1,1] = 1
+b = Float32(2.0) / a
+b.grad = ones(3,3)
 backward!(b)
+backward!(b.child2)
 
 println(a.val)
 println(a.grad)
+println(- Float32(2.0) ./ (a.val .^ Float32(2)))
 println()
 println(b.val)
 println(b.grad)
